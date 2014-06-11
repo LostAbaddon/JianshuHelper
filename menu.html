@@ -1,0 +1,134 @@
+<!doctype html>
+<html>
+<head>
+<title>Jianshu Helper!</title>
+<style>
+body {
+	font-size: 14px;
+	width: 260px;
+	height: 205px;
+	text-align: center;
+}
+.title {
+	font-size: 16px;
+	font-weight: bold;
+	margin-bottom: 10px;
+	padding-bottom: 5px;
+	border-bottom: 1px solid lightgrey;
+}
+.frame {
+	position: relative;
+}
+.logpad {
+	display: block;
+	min-height: 20px;
+	font-size: 12px;
+	margin-top: 10px;
+	padding-top: 5px;
+	border-top: 1px solid lightgrey;
+}
+.button {
+	display: block;
+	width: 250px;
+	height: 30px;
+	line-height: 30px;
+	margin: 5px;
+	background: lightgrey;
+	box-shadow: inset 0px 0px 2px white;
+	border-radius: 5px;
+	cursor: pointer;
+	transition: all ease 200ms;
+}
+.button:hover {
+	background: white;
+	box-shadow: inset 0px 0px 2px lightgrey;
+}
+.animation {
+	transition: all ease 200ms;
+}
+.hidden {
+	display: none;
+	opacity: 0;
+}
+.float {
+	position: absolute;
+	top: 0px;
+}
+.hint {
+	font-weight: bold;
+}
+.showall {
+	width: 255px;
+	height: 170px;
+	overflow-y: scroll;
+}
+.showall button {
+	margin-bottom: 5px;
+}
+.showall .item {
+	display: block;
+	margin-top: 5px;
+	cursor: pointer;
+}
+input {
+	width: 180px;
+	outline: none;
+	border: none;
+	border-bottom: 1px solid lightgrey;
+}
+button {
+	position: relative;
+	display:block;
+	left: 50%;
+	width: 100px;
+	height: 25px;
+	line-height: 25px;
+	text-align: center;
+	margin-top: 10px;
+	margin-left: -50px;
+	outline: none;
+	border-radius: 3px;
+	border: 1px solid darkgrey;
+	background: lightgrey;
+	box-shadow: inset 0px 0px 2px white;
+	cursor: pointer;
+}
+button:hover {
+	border: 1px solid lightgrey;
+	background: white;
+	box-shadow: inset 0px 0px 5px lightgrey;
+}
+</style>
+
+<script src="menu.js"></script>
+</head>
+<body>
+
+<div class="title">请选择：</div>
+
+<div class="frame">
+
+<div class="main animation">
+	<div class="button add">添加屏蔽用户ID</div>
+	<div class="button remove">移除屏蔽用户</div>
+	<div class="button show">查看屏蔽列表</div>
+	<div class="button reset">清空屏蔽列表</div>
+	<div class="button toggle">启用屏蔽</div>
+</div>
+
+<div class="username hidden animation float">
+	<span class="hint">用户ID：</span>
+	<input type="text" />
+	<button class="submit animation"></button>
+</div>
+
+<div class="showall hidden animation float">
+	<button class="back">返回</button>
+</div>
+
+</div>
+
+<div class="logpad"></div>
+
+</body>
+</html>

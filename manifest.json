@@ -1,0 +1,32 @@
+{
+	"manifest_version": 2,
+
+	"name": "Jianshu Helper",
+	"description": "Make Jianshu much more easier to use.",
+	"version": "0.1",
+
+	"permissions": [
+		"tabs",
+		"webRequest",
+		"http://jianshu.io/",
+		"http://jianshu.io/*",
+		"http://jianshu.io/*/*"
+	],
+	"browser_action": {
+		"default_icon": "icon.png",
+		"default_popup": "menu.html"
+	},
+	"icons": {"48": "icon.png"},
+
+	"background": {
+		"scripts": ["servo.js"]
+	},
+
+	"content_scripts": [
+		{
+			"matches": ["http://jianshu.io/", "http://jianshu.io/*", "http://jianshu.io/*/*"],
+			"js": ["kernel.js"],
+			"run_at": "document_start"
+		}
+	]
+}
