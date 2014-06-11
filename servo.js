@@ -105,4 +105,7 @@ chrome.webRequest.onCompleted.addListener(function (details) {
 	})) {
 		chrome.tabs.sendMessage(details.tabId, {action: "content_loaded"});
 	}
+	else if (/\/writer\/notes\/\w*\/content/i.test(url)) {
+		chrome.tabs.sendMessage(details.tabId, {action: "writer_loaded"});
+	}
 }, filter);

@@ -68,15 +68,25 @@ var findRoot = function (link) {
 	return null;
 };
 
-// (function init () {
-// 	var path = window.location.pathname.toLowerCase();
-// 	var url_notification = /^\/notifications/i,
-// 		url_home = /^\/$/i,
-// 		url_timeline = /^\/timeline$/i,
-// 		url_latest = /^\/timeline\/latest/i,
-// 		url_bookmark = /^\/bookmarks/i,
-// 		url_article = /^\/p\//i;
-// }) ();
+var page = 'home';
+(function init () {
+	var path = window.location.pathname;
+	var url_notification = /^\/notifications/i,
+		url_home = /^\/$/i,
+		url_timeline = /^\/timeline$/i,
+		url_latest = /^\/timeline\/latest/i,
+		url_bookmark = /^\/bookmarks/i,
+		url_article = /^\/p\//i,
+		url_write = /^\/writer/i;
+
+	if (url_notification.test(path)) page = 'notification';
+	else if (url_home.test(path)) page = 'home';
+	else if (url_timeline.test(path)) page = 'timeline';
+	else if (url_latest.test(path)) page = 'latest';
+	else if (url_bookmark.test(path)) page = 'bookmarks';
+	else if (url_article.test(path)) page = 'article';
+	else if (url_write.test(path)) page = 'write';
+}) ();
 
 function applySingleBlackWord (word) {
 	var links = pickupLinks(word), l = links.length, i, root;
@@ -93,20 +103,15 @@ function applyBlackList () {
 	});
 }
 
+function setUploader () {
+	var uploaders = document.querySelectorAll('input[type="file"]'), l = uploaders.length, i;
+	for (i = 0; i < l; i++) {
+		uploaders[i].accept = 'image/*';
+	}
+}
+
 chrome.runtime.sendMessage({action: 'use_blacklist'}, function (response) {
 	use_blacklist = response.result;
-});
-
-document.addEventListener('DOMContentLoaded', function () {
-	if (!use_blacklist) return;
-
-	addCover();
-
-	chrome.runtime.sendMessage({action: 'read_blacklist'}, function(response) {
-		blacklist = response.result;
-		applyBlackList();
-		hideCover();
-	});
 });
 
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
@@ -117,4 +122,21 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 		applyBlackList();
 		hideCover();
 	}
+	else if (request.action === 'writer_loaded') {
+		setUploader();
+	}
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+	if (page === 'write') setUploader();
+
+	if (!use_blacklist) return;
+
+	addCover();
+
+	chrome.runtime.sendMessage({action: 'read_blacklist'}, function(response) {
+		blacklist = response.result;
+		applyBlackList();
+		hideCover();
+	});
 });
