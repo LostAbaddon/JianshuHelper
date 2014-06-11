@@ -23,7 +23,7 @@ Something would be done:
 * J-Mail Improvement.
 * Mouse-Movement Shortcut.
 
-#### ** Notice: **
+#### Notice:
 It's a Chrome Extension.
 Maybe you could install it in webkit-based modern browser such as Tencent or Liebao or Baidu, but I'm not sure.
 It's just for Chrome.
