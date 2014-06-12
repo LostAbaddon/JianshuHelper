@@ -66,6 +66,9 @@ function requestHandler (request) {
 			localStorage.blacklist = '';
 			return true;
 		break;
+		case "is_user_blocked":
+			return blacklist.indexOf(request.id) >= 0;
+		break;
 		case "log":
 			console.log('log: ', request.msg);
 			return true;
