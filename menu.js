@@ -97,18 +97,36 @@ function init_blacklist (url, enable) {
 				log('添加用户' + user_name + '至屏蔽列表成功。<BR>屏蔽总人数：' + response.result.length);
 			});
 		});
+		chrome.runtime.sendMessage({action: 'is_user_blocked', id:user_name}, function (response) {
+			if (response.result) {
+				btn_remove.innerHTML = '解除对当前用户屏蔽';
+				addEvent(btn_remove, 'click', function () {
+						chrome.runtime.sendMessage({action: 'remove_from_blacklist', id:[user_name]}, function (response) {
+							log('成功将用户' + user_name + '从屏蔽列表移除。<BR>屏蔽总人数：' + response.result.length);
+						});
+				});
+			}
+			else {
+				addEvent(btn_remove, 'click', function () {
+					state = 1;
+					showUserPad('欲解除屏蔽用户ID：', '解除屏蔽');
+				});
+			}
+		});
+
+
 	}
 	else {
 		addEvent(btn_add, 'click', function () {
 			state = 0;
 			showUserPad('请输入欲屏蔽用户ID：', '屏蔽之');
 		});
+		addEvent(btn_remove, 'click', function () {
+			state = 1;
+			showUserPad('欲解除屏蔽用户ID：', '解除屏蔽');
+		});
 	}
 
-	addEvent(btn_remove, 'click', function () {
-		state = 1;
-		showUserPad('欲解除屏蔽用户ID：', '解除屏蔽');
-	});
 	addEvent(btn_show, 'click', function () {
 		var frame = query('.showall'), items = query('.showall .item', true), l = items.length, i;
 		for (i = 0; i < l; i++) {
