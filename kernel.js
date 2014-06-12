@@ -1,5 +1,6 @@
 var blacklist = [];
 var use_blacklist = localStorage.__Extension_Enable_BlackList === '0' ? false : true;
+var cancel_block = false;
 
 var hideCover = function () {};
 var showCover = function () {};
@@ -9,12 +10,12 @@ var addCover = function () {
 	cover.style.position = 'fixed';
 	cover.style.display = 'block';
 	cover.style.width = '100%';
-	cover.style.height = '100%';
-	cover.style.lineHeight = '500px';
+	cover.style.height = window.innerHeight + 'px';
+	cover.style.lineHeight = window.innerHeight + 'px';
 	cover.style.top = '0px';
 	cover.style.left = '0px';
 	cover.style.zIndex = '2000';
-	cover.style.background = 'white';
+	cover.style.background = '-webkit-linear-gradient(top, rgb(150, 150, 150) 0%, rgb(225, 225, 225) 25%, rgb(225, 225, 225) 75%, rgb(150, 150, 150) 100%)';
 	cover.style.opacity = '1';
 	cover.style.transition = 'opacity ease 500ms';
 	cover.style.textAlign = 'center';
@@ -24,6 +25,8 @@ var addCover = function () {
 	body.appendChild(cover);
 
 	showCover = function () {
+		cover.style.height = window.innerHeight + 'px';
+		cover.style.lineHeight = window.innerHeight + 'px';
 		body.appendChild(cover);
 		setTimeout(function () {
 			cover.style.opacity = '1';
@@ -103,12 +106,12 @@ function applyBlackList () {
 	});
 }
 
-function setUploader () {
-	var uploaders = document.querySelectorAll('input[type="file"]'), l = uploaders.length, i;
-	for (i = 0; i < l; i++) {
-		uploaders[i].accept = 'image/*';
-	}
-}
+// function setUploader () {
+// 	var uploaders = document.querySelectorAll('input[type="file"]'), l = uploaders.length, i;
+// 	for (i = 0; i < l; i++) {
+// 		uploaders[i].accept = 'image/*';
+// 	}
+// }
 
 chrome.runtime.sendMessage({action: 'use_blacklist'}, function (response) {
 	use_blacklist = !!response ? response.result : (localStorage.__Extension_Enable_BlackList === '1' ? true : false);
@@ -117,30 +120,32 @@ chrome.runtime.sendMessage({action: 'use_blacklist'}, function (response) {
 
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 	if (request.action === 'content_request') {
+		if (cancel_block) return;
 		showCover();
 	}
 	else if (request.action === 'content_loaded') {
+		if (cancel_block) return;
 		applyBlackList();
 		hideCover();
-	}
-	else if (request.action === 'writer_loaded') {
-		setUploader();
 	}
 });
 
 document.addEventListener('DOMContentLoaded', function () {
 	if (page === 'write') {
-		setUploader();
 		return;
 	}
 
 	if (!use_blacklist) return;
 
+	cancel_block = true;
 	addCover();
 
 	chrome.runtime.sendMessage({action: 'read_blacklist'}, function(response) {
 		blacklist = response.result;
 		applyBlackList();
 		hideCover();
+		setTimeout(function () {
+			cancel_block = false;
+		}, 200);
 	});
 });

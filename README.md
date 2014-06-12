@@ -39,6 +39,8 @@ It's just for Chrome.
 - File Uploader only accept image.
 
 ### Ver 0.1.1
-Debug:
 - Fixed bugs reported in Issue #1, #2, #3, #4, #5.
 - Improved the UX of unblocking current user.
+- Changed the cover layer.
+- Modified the title and description in manifest.json.
+- Removed Uploader Improvement which has been done by JianShu itself.

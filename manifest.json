@@ -1,8 +1,8 @@
 {
 	"manifest_version": 2,
 
-	"name": "Jianshu Helper",
-	"description": "Make Jianshu much more easier to use. README.md and ProjectMap.mom for more details and information.",
+	"name": "简书助手",
+	"description": "提升简书玩耍体验！",
 	"version": "0.1.1",
 
 	"permissions": [
