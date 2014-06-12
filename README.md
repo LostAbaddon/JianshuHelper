@@ -37,3 +37,7 @@ It's just for Chrome.
 ### Ver 0.1
 - Add README.md
 - File Uploader only accept image.
+
+### Ver 0.1.1
+Debug:
+- Fixed bugs reported in Issue #1, #2, #3, #4, #5.
