@@ -91,7 +91,7 @@ function init_blacklist (url, enable) {
 
 	if (/jianshu\.io\/users\//i.test(url)) {
 		btn_add.innerHTML = '屏蔽当前用户';
-		user_name = url.replace(/((http(s)?:\/\/jianshu\.io\/users\/)|(\/latest_articles))/gi, '');
+		user_name = url.match(/\bjianshu\.io\/users\/\w*\b/i)[0].replace(/\bjianshu\.io\/users\//i,'');
 		addEvent(btn_add, 'click', function () {
 			chrome.runtime.sendMessage({action: 'add_to_blacklist', id:[user_name]}, function (response) {
 				log('添加用户' + user_name + '至屏蔽列表成功。<BR>屏蔽总人数：' + response.result.length);
@@ -181,6 +181,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
 		init_blacklist(url, localStorage.useBlacklist === '1' ? true : false);
 
-		log('正太已准备就绪！<BR>屏蔽总人数：' + localStorage.blacklist.split(',').length);
+		log('正太已准备就绪！<BR>屏蔽总人数：' + (!localStorage.blacklist ? 0 : localStorage.blacklist.split(',').length));
 	});
 });
