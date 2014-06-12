@@ -1,5 +1,5 @@
 var blacklist = [];
-var use_blacklist = true;
+var use_blacklist = localStorage.__Extension_Enable_BlackList === '0' ? false : true;
 
 var hideCover = function () {};
 var showCover = function () {};
@@ -111,7 +111,8 @@ function setUploader () {
 }
 
 chrome.runtime.sendMessage({action: 'use_blacklist'}, function (response) {
-	use_blacklist = response.result;
+	use_blacklist = !!response ? response.result : (localStorage.__Extension_Enable_BlackList === '1' ? true : false);
+	localStorage.__Extension_Enable_BlackList = use_blacklist ? '1' : '0';
 });
 
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
@@ -128,7 +129,10 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 });
 
 document.addEventListener('DOMContentLoaded', function () {
-	if (page === 'write') setUploader();
+	if (page === 'write') {
+		setUploader();
+		return;
+	}
 
 	if (!use_blacklist) return;
 
