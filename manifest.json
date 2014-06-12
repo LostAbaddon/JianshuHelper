@@ -2,8 +2,8 @@
 	"manifest_version": 2,
 
 	"name": "Jianshu Helper",
-	"description": "Make Jianshu much more easier to use.",
-	"version": "0.1",
+	"description": "Make Jianshu much more easier to use. README.md and ProjectMap.mom for more details and information.",
+	"version": "0.1.1",
 
 	"permissions": [
 		"tabs",
