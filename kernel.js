@@ -24,12 +24,12 @@ var addCover = function () {
 	cover.innerHTML = "页面处理中，请稍候。。。";
 	body.appendChild(cover);
 
-	showCover = function () {
+	showCover = function (is_same_page) {
 		cover.style.height = window.innerHeight + 'px';
 		cover.style.lineHeight = window.innerHeight + 'px';
 		body.appendChild(cover);
 		setTimeout(function () {
-			cover.style.opacity = '1';
+			cover.style.opacity = is_same_page ? '0.8' : '1';
 		}, 0);
 	};
 	hideCover = function () {
@@ -121,12 +121,20 @@ chrome.runtime.sendMessage({action: 'use_blacklist'}, function (response) {
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 	if (request.action === 'content_request') {
 		if (cancel_block) return;
-		showCover();
+
+		var url_from = window.location.href.indexOf('?'), url_to = request.url.indexOf('?');
+		url_from = url_from === -1 ? window.location.href : window.location.href.substring(0, url_from);
+		url_to = url_to === -1 ? request.url : request.url.substring(0, url_to);
+
+		showCover(url_from === url_to);
 	}
 	else if (request.action === 'content_loaded') {
 		if (cancel_block) return;
 		applyBlackList();
 		hideCover();
+	}
+	else if (request.action === 'redirection') {
+		window.location.href = request.url;
 	}
 });
 
@@ -146,6 +154,6 @@ document.addEventListener('DOMContentLoaded', function () {
 		hideCover();
 		setTimeout(function () {
 			cancel_block = false;
-		}, 200);
+		}, 500);
 	});
 });

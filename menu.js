@@ -11,6 +11,9 @@ function query (selector, all) {
 function addEvent (dom, event, handler) {
 	dom.addEventListener(event, handler);
 }
+function newUI (tag) {
+	return document.createElement(tag);
+}
 
 function init_blacklist (url, enable) {
 	var user_name, state = 0,
@@ -50,6 +53,33 @@ function init_blacklist (url, enable) {
 			pad_add.style.display = 'none';
 			!!callback && callback();
 		}, 200);
+	}
+	function newListItem (item, id) {
+		var btn_name = newUI('span'), btn_link = newUI('span'), btn_unlock = newUI('span');
+
+		btn_name.className = 'name';
+		btn_link.className = 'link';
+		btn_unlock.className = 'link';
+
+		btn_name.innerHTML = id;
+		btn_link.innerHTML = '主页';
+		btn_unlock.innerHTML = '解除';
+
+		item.appendChild(btn_name);
+		item.appendChild(btn_link);
+		item.appendChild(btn_unlock);
+
+		addEvent(btn_link, 'click', function () {
+			chrome.tabs.query({currentWindow: true, active: true}, function (tabs) {
+				chrome.tabs.sendMessage(tabs[0].id, {action: "redirection", url: 'http://jianshu.io/users/' + id});
+			});
+		});
+		addEvent(btn_unlock, 'click', function () {
+			chrome.runtime.sendMessage({action: 'remove_from_blacklist', id:[id]}, function (response) {
+				log('成功将用户' + id + '从屏蔽列表移除。<BR>屏蔽总人数：' + response.result.length);
+				frame.removeChild(item);
+			});
+		});
 	}
 
 	addEvent(btn_usr_submit, 'click', function () {
@@ -113,8 +143,6 @@ function init_blacklist (url, enable) {
 				});
 			}
 		});
-
-
 	}
 	else {
 		addEvent(btn_add, 'click', function () {
@@ -145,16 +173,9 @@ function init_blacklist (url, enable) {
 			var list = response.result;
 			l = list.length;
 			for (i = 0; i < l; i++) {
-				items = document.createElement('div');
+				items = newUI('div');
 				items.className = 'item';
-				items.innerHTML = list[i];
-				addEvent(items, 'click', function () {
-					var name = this.innerHTML.trim(), self = this;
-					chrome.runtime.sendMessage({action: 'remove_from_blacklist', id:[name]}, function (response) {
-						log('成功将用户' + name + '从屏蔽列表移除。<BR>屏蔽总人数：' + response.result.length);
-						frame.removeChild(self);
-					});
-				});
+				newListItem(items, list[i]);
 				frame.appendChild(items);
 			}
 		});
