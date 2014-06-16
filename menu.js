@@ -4,17 +4,6 @@ var send = function (msg) {
 var log = function () {};
 var title = function () {};
 
-function query (selector, all) {
-	if (!!all) return document.querySelectorAll(selector);
-	else return document.querySelector(selector);
-}
-function addEvent (dom, event, handler) {
-	dom.addEventListener(event, handler);
-}
-function newUI (tag) {
-	return document.createElement(tag);
-}
-
 function init_blacklist (url, enable) {
 	var user_name, state = 0,
 
@@ -207,6 +196,11 @@ document.addEventListener('DOMContentLoaded', function () {
 			window.close();
 			return;
 		}
+
+		chrome.tabs.sendMessage(tabs[0].id, {action: "show_menu", info : {
+			blacklist_enable: localStorage.useBlacklist === '1' ? true : false,
+			blacklist_number: !localStorage.blacklist ? 0 : localStorage.blacklist.split(',').length
+		}});
 
 		var log_pad = query('.logpad');
 		log = function (msg) {

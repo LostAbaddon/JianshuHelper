@@ -2,39 +2,82 @@ var blacklist = [];
 var use_blacklist = localStorage.__Extension_Enable_BlackList === '0' ? false : true;
 var cancel_block = false;
 
+function init_frame_titme (main) {
+	var ui = newUI('div', 'cover');
+	ui.innerHTML = "页面处理中，请稍候。。。";
+
+	return ui;
+}
+function init_frame_main (main) {
+	var ui = newUI('div', 'menu');
+
+	var element = newUI('div', 'title');
+	element.innerHTML = '简书助手';
+	ui.appendChild(element);
+
+	element = newUI('div', 'left_frame');
+	element.innerHTML = 'Menu List';
+	ui.appendChild(element);
+
+	element = newUI('div', 'right_frame');
+	element.innerHTML = 'Sub Menu Area<BR>sldkfjsldkf<BR>sdkfjsldkfj<DIV>skkksksks</DIV>';
+	ui.appendChild(element);
+
+	return ui;
+}
+
+var init_frame = {
+	title: init_frame_titme,
+	main: init_frame_main
+};
+var frames = {
+	title: true,
+	main: true
+};
+
 var hideCover = function () {};
 var showCover = function () {};
+var setCover = function () {};
 var addCover = function () {
 	var body = document.querySelector('body');
-	var cover = document.createElement('div');
-	cover.style.position = 'fixed';
-	cover.style.display = 'block';
-	cover.style.width = '100%';
-	cover.style.height = window.innerHeight + 'px';
-	cover.style.lineHeight = window.innerHeight + 'px';
-	cover.style.top = '0px';
-	cover.style.left = '0px';
-	cover.style.zIndex = '2000';
-	cover.style.background = '-webkit-linear-gradient(top, rgb(150, 150, 150) 0%, rgb(225, 225, 225) 25%, rgb(225, 225, 225) 75%, rgb(150, 150, 150) 100%)';
-	cover.style.opacity = '1';
-	cover.style.transition = 'opacity ease 500ms';
-	cover.style.textAlign = 'center';
-	cover.style.fontSize = '60px';
-	cover.style.fontWeight = 'bolder';
-	cover.innerHTML = "页面处理中，请稍候。。。";
+	var cover = newUI('div', 'inject_jsx_cover', {'height' : window.innerHeight + 'px'});
 	body.appendChild(cover);
 
-	showCover = function (is_same_page) {
+	frames.title = init_frame.title(cover);
+	cover.appendChild(frames.title);
+
+	var last_cover = frames.title;
+	setCover = function (order) {
+		var frame = frames[order];
+		if (frame === true) {
+			frame = init_frame[order](cover);
+			frames[order] = frame;
+		}
+		if (!!frame) {
+			cover.appendChild(frame)
+			last_cover = frame;
+		}
+		else {
+			last_cover = null;
+		}
+	};
+
+	showCover = function (opacity) {
 		cover.style.height = window.innerHeight + 'px';
-		cover.style.lineHeight = window.innerHeight + 'px';
+		cover.style.background = "-webkit-linear-gradient(top, " +
+									"rgba(200, 200, 200, " + opacity + ") 0%, " +
+									"rgba(245, 245, 245, " + opacity + ") 20%, " +
+									"rgba(245, 245, 245, " + opacity + ") 80%, " +
+									"rgba(200, 200, 200, " + opacity + ") 100%)";
 		body.appendChild(cover);
 		setTimeout(function () {
-			cover.style.opacity = is_same_page ? '0.8' : '1';
+			cover.style.opacity = 1;
 		}, 0);
 	};
 	hideCover = function () {
 		cover.style.opacity = '0';
 		setTimeout(function () {
+			!!last_cover && cover.removeChild(last_cover);
 			body.removeChild(cover);
 		}, 500);
 	};
@@ -106,13 +149,6 @@ function applyBlackList () {
 	});
 }
 
-// function setUploader () {
-// 	var uploaders = document.querySelectorAll('input[type="file"]'), l = uploaders.length, i;
-// 	for (i = 0; i < l; i++) {
-// 		uploaders[i].accept = 'image/*';
-// 	}
-// }
-
 chrome.runtime.sendMessage({action: 'use_blacklist'}, function (response) {
 	use_blacklist = !!response ? response.result : (localStorage.__Extension_Enable_BlackList === '1' ? true : false);
 	localStorage.__Extension_Enable_BlackList = use_blacklist ? '1' : '0';
@@ -123,10 +159,17 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 		if (cancel_block) return;
 
 		var url_from = window.location.href.indexOf('?'), url_to = request.url.indexOf('?');
-		url_from = url_from === -1 ? window.location.href : window.location.href.substring(0, url_from);
-		url_to = url_to === -1 ? request.url : request.url.substring(0, url_to);
 
-		showCover(url_from === url_to);
+		if (url_from === url_to) {
+			setCover('title');
+			showCover(1);
+		}
+		else {
+			url_from = url_from === -1 ? window.location.href : window.location.href.substring(0, url_from);
+			url_to = url_to === -1 ? request.url : request.url.substring(0, url_to);
+			setCover('title');
+			showCover(url_from === url_to ? 0.8 : 1);
+		}
 	}
 	else if (request.action === 'content_loaded') {
 		if (cancel_block) return;
@@ -135,6 +178,11 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 	}
 	else if (request.action === 'redirection') {
 		window.location.href = request.url;
+	}
+	else if (request.action === 'show_menu') {
+		console.log(request.info);
+		setCover('main');
+		showCover(0.5);
 	}
 });
 

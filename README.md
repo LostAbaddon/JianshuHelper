@@ -44,3 +44,6 @@ It's just for Chrome.
 - Changed the cover layer.
 - Modified the title and description in manifest.json.
 - Removed Uploader Improvement which has been done by JianShu itself.
+
+### Ver 0.1.2
+- New UI

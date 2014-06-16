@@ -3,7 +3,7 @@
 
 	"name": "简书助手",
 	"description": "提升简书玩耍体验！",
-	"version": "0.1.1",
+	"version": "0.1.2",
 
 	"permissions": [
 		"tabs",
@@ -25,7 +25,8 @@
 	"content_scripts": [
 		{
 			"matches": ["http://jianshu.io/", "http://jianshu.io/*", "http://jianshu.io/*/*"],
-			"js": ["kernel.js"],
+			"css": ["page.css"],
+			"js": ["common.js", "kernel.js"],
 			"run_at": "document_start"
 		}
 	]
