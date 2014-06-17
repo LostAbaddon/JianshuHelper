@@ -1,6 +1,13 @@
 var blacklist = [];
 var use_blacklist = localStorage.__Extension_Enable_BlackList === '0' ? false : true;
-var cancel_block = false;
+var cancel_block = false, menu_shown = false;
+var block_controller = {
+	setBlockNumber: function () {},
+	setBlockToggle: function (enable) {
+		use_blacklist = enable;
+		localStorage.__Extension_Enable_BlackList = use_blacklist ? '1' : '0';
+	}
+};
 
 function init_frame_titme (main) {
 	var ui = newUI('div', 'cover');
@@ -9,19 +16,67 @@ function init_frame_titme (main) {
 	return ui;
 }
 function init_frame_main (main) {
-	var ui = newUI('div', 'menu');
+	var ui = newUI('div', 'menu'), element, elem, button;
+	var area_block;
+	var block_title, btn_reset, btn_toggle;
 
-	var element = newUI('div', 'title');
+	element = newUI('div', 'title');
 	element.innerHTML = '简书助手';
 	ui.appendChild(element);
 
 	element = newUI('div', 'left_frame');
-	element.innerHTML = 'Menu List';
 	ui.appendChild(element);
 
+	button = newUI('div', 'button');
+	button.innerHTML = '屏蔽用户';
+	element.appendChild(button);
+
+	button = newUI('div', 'button');
+	button.innerHTML = '其它';
+	element.appendChild(button);
+
 	element = newUI('div', 'right_frame');
-	element.innerHTML = 'Sub Menu Area<BR>sldkfjsldkf<BR>sdkfjsldkfj<DIV>skkksksks</DIV>';
 	ui.appendChild(element);
+
+	area_block = newUI('div', 'area');
+	element.appendChild(area_block);
+
+	elem = newUI('div', 'title');
+	area_block.appendChild(elem);
+
+	block_title = newUI('span', 'title_title');
+	block_title.innerHTML = '当前屏蔽人数：';
+	elem.appendChild(block_title);
+
+	btn_reset = newUI('span', 'inline_button');
+	btn_reset.innerHTML = '重置';
+	elem.appendChild(btn_reset);
+
+	btn_toggle = newUI('span', 'inline_button');
+	btn_toggle.innerHTML = use_blacklist ? '禁用' : '启用';
+	elem.appendChild(btn_toggle);
+
+	block_controller.setBlockNumber = function (num) {
+		block_title.innerHTML = '当前屏蔽人数：' + num;
+	};
+	block_controller.setBlockToggle = function (enable) {
+		use_blacklist = enable;
+		localStorage.__Extension_Enable_BlackList = use_blacklist ? '1' : '0';
+		btn_toggle.innerHTML = enable ? '禁用' : '启用';
+	};
+
+	addEvent(btn_toggle, 'click', function (e) {
+		if (use_blacklist) {
+			chrome.runtime.sendMessage({action: 'turn_off_blacklist'}, function (response) {
+				block_controller.setBlockToggle(false);
+			});
+		}
+		else {
+			chrome.runtime.sendMessage({action: 'turn_on_blacklist'}, function (response) {
+				block_controller.setBlockToggle(true);
+			});
+		}
+	});
 
 	return ui;
 }
@@ -150,8 +205,7 @@ function applyBlackList () {
 }
 
 chrome.runtime.sendMessage({action: 'use_blacklist'}, function (response) {
-	use_blacklist = !!response ? response.result : (localStorage.__Extension_Enable_BlackList === '1' ? true : false);
-	localStorage.__Extension_Enable_BlackList = use_blacklist ? '1' : '0';
+	block_controller.setBlockToggle(!!response ? response.result : (localStorage.__Extension_Enable_BlackList === '1' ? true : false));
 });
 
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
@@ -180,9 +234,16 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 		window.location.href = request.url;
 	}
 	else if (request.action === 'show_menu') {
-		console.log(request.info);
-		setCover('main');
-		showCover(0.5);
+		menu_shown = !menu_shown;
+		if (menu_shown) {
+			setCover('main');
+			showCover(0.5);
+		}
+		else {
+			hideCover();
+		}
+		block_controller.setBlockToggle(request.info.blacklist_enable);
+		block_controller.setBlockNumber(request.info.blacklist_number);
 	}
 });
 

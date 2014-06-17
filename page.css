@@ -70,3 +70,54 @@
 	border-left: 1px solid lightgrey;
 	width: 60%;
 }
+
+.inject_jsx_cover .menu .button {
+	position: relative;
+	display: block;
+	left: 50%;
+	width: 200px;
+	height: 30px;
+	line-height: 30px;
+	margin-left: -100px;
+	margin-bottom: 10px;
+	box-sizing: border-box;
+	text-align: center;
+	font-weight: bolder;
+	border-radius: 5px;
+	border: 1px solid black;
+	background: -webkit-linear-gradient(top, rgb(245, 245, 245) 0%, rgb(255, 255, 255) 15%, rgb(205, 205, 205) 85%, rgb(155, 155, 155) 100%);
+	cursor: pointer;
+}
+.inject_jsx_cover .menu .button:hover {
+	background: -webkit-linear-gradient(top, rgb(245, 245, 255) 0%, rgb(255, 255, 255) 15%, rgb(205, 205, 245) 85%, rgb(155, 155, 205) 100%);
+}
+
+.inject_jsx_cover .menu .inline_button {
+	display: inline-block;
+	box-sizing: border-box;
+	width: 60px;
+	height: 25px;
+	line-height: 25px;
+	margin-left: 5px;
+	margin-right: 5px;
+	text-align: center;
+	font-size: 14px;
+	border-radius: 5px;
+	border: 1px solid darkgrey;
+	background: -webkit-linear-gradient(top, rgb(245, 245, 245) 0%, rgb(255, 255, 255) 15%, rgb(205, 205, 205) 85%, rgb(155, 155, 155) 100%);
+	cursor: pointer;
+}
+.inject_jsx_cover .menu .inline_button:hover {
+	background: -webkit-linear-gradient(top, rgb(245, 245, 255) 0%, rgb(255, 255, 255) 15%, rgb(205, 205, 245) 85%, rgb(155, 155, 205) 100%);
+}
+
+.inject_jsx_cover .menu .right_frame .area {
+	position: relative;
+	display: block;
+	box-sizing: border-box;
+	width: 100%;
+}
+
+.inject_jsx_cover .menu .right_frame .area .title_title {
+	margin-right: 20px;
+}
