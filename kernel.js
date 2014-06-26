@@ -8,6 +8,7 @@ var block_controller = {
 		localStorage.__Extension_Enable_BlackList = use_blacklist ? '1' : '0';
 	}
 };
+var user_name_cacher = {};
 
 function init_frame_titme (main) {
 	var ui = newUI('div', 'cover');
@@ -55,6 +56,33 @@ function init_frame_main (main) {
 	btn_toggle = newUI('span', 'inline_button');
 	btn_toggle.innerHTML = use_blacklist ? '禁用' : '启用';
 	elem.appendChild(btn_toggle);
+
+	elem = newUI('div', 'list_area');
+	area_block.appendChild(elem)
+
+	blacklist.map(function (item) {
+		var item_dom = newUI('div', 'list_item');
+		var item_id = newUI('span', ['list_col', 'id']),
+			item_name = newUI('span', ['list_col', 'name']),
+			item_jump = newUI('span', ['list_col', 'inline_button']),
+			item_unblock = newUI('span', ['list_col', 'inline_button']);
+		item_dom.appendChild(item_id);
+		item_dom.appendChild(item_name);
+		item_dom.appendChild(item_jump);
+		item_dom.appendChild(item_unblock);
+		elem.appendChild(item_dom);
+
+		item_id.innerHTML = item;
+		item_jump.innerHTML = '查看主页';
+		item_unblock.innerHTML = '解除屏蔽';
+
+		user_name_cacher[item] = function (name) {
+			item_name.innerHTML = name;
+		};
+		chrome.runtime.sendMessage({action: 'get_user_name', user: item}, function (response) {
+			if (response.result === true) user_name_cacher[item](response.user_name);
+		});
+	});
 
 	block_controller.setBlockNumber = function (num) {
 		block_title.innerHTML = '当前屏蔽人数：' + num;
@@ -244,6 +272,10 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 		}
 		block_controller.setBlockToggle(request.info.blacklist_enable);
 		block_controller.setBlockNumber(request.info.blacklist_number);
+	}
+	else if (request.action === 'user_name_got') {
+		var callback = user_name_cacher[request.result.user_id];
+		!!callback && (request.result.result === true) && callback(request.result.user_name);
 	}
 });
 

@@ -34,8 +34,59 @@ function saveList () {
 	localStorage.blacklist = JSON.stringify(blacklist).replace(/^\[/, '').replace(/\]$/, '').replace(/"/gi, '');
 }
 
-function requestHandler (request) {
-	var index, l, i;
+function getUserName (user, callback) {
+	var xhr = new XMLHttpRequest(), dom = document.createElement('div');
+	xhr.open('GET', 'http://jianshu.io/users/' + user + '/author_card', true);
+	xhr.overrideMimeType('text/plain; charset=utf-8');
+	xhr.onload = function (e) {
+		if (this.status === 200) {
+			dom.innerHTML = this.response;
+			var name = dom.querySelector('div.header>span>a').innerHTML;
+			dom.innerHTML = '';
+			dom = null;
+			xhr = null;
+			callback(name);
+		}
+	};
+	xhr.send();
+}
+function getUserNameCache (user, callback) {
+	localStorage.removeItem('__user__' + user);
+	var name = localStorage['__user__' + user];
+	console.log('GUNC', user, name);
+	if (!!name) {
+		callback(name);
+		if (!sessionStorage['__user__' + user]) {
+			getUserName(user, function (new_name) {
+				if (new_name === name) return;
+				localStorage['__user__' + user] = new_name;
+				sessionStorage['__user__' + user] = true;
+				callback(new_name);
+			});
+		}
+	}
+	else {
+		getUserName(user, function (name) {
+			localStorage['__user__' + user] = name;
+			sessionStorage['__user__' + user] = true;
+			callback(name);
+		});
+	}
+}
+function removeUserNameCache (user) {
+	localStorage.removeItem('__user__' + user);
+}
+function clearUserNameCache () {
+	var key;
+	for (key in localStorage) {
+		if (key.indexOf('__user__') === 0) {
+			localStorage.removeItem(key);
+		}
+	}
+}
+
+function requestHandler (request, sender) {
+	var index, l, i, j;
 	switch (request.action) {
 		case "add_to_blacklist":
 			index = request.id;
@@ -54,9 +105,10 @@ function requestHandler (request) {
 			index = request.id;
 			l = index.length;
 			for (i = 0; i < l; i++) {
-				index[i] = blacklist.indexOf(index[i]);
-				if (index[i] < 0) break;
-				blacklist.splice(index[i], 1);
+				j = blacklist.indexOf(index[i]);
+				if (j < 0) break;
+				blacklist.splice(j, 1);
+				removeUserNameCache(index[i]);
 			}
 			saveList();
 			return blacklist;
@@ -64,6 +116,7 @@ function requestHandler (request) {
 		case "reset_blacklist":
 			blacklist = [];
 			localStorage.blacklist = '';
+			clearUserNameCache();
 			return true;
 		break;
 		case "is_user_blocked":
@@ -86,11 +139,22 @@ function requestHandler (request) {
 			localStorage.useBlacklist = '0';
 			return use_blacklist;
 		break;
+		case "get_user_name":
+			getUserNameCache(request.user, function (name) {
+				var result = {
+					result: true,
+					user_id: request.user,
+					user_name: name
+				};
+				chrome.tabs.sendMessage(sender.tab.id, {action: "user_name_got", result: result})
+			});
+			return false;
+		break;
 	}
 }
 
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-	sendResponse({result: requestHandler(request)});
+	sendResponse({result: requestHandler(request, sender)});
 });
 
 chrome.webRequest.onBeforeRequest.addListener(function (details) {
