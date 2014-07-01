@@ -1,6 +1,6 @@
 var blacklist = [];
 var use_blacklist = localStorage.__Extension_Enable_BlackList === '0' ? false : true;
-var cancel_block = false, menu_shown = false;
+var cancel_block = false, menu_shown = true;
 var block_controller = {
 	setBlockNumber: function () {},
 	setBlockToggle: function (enable) {
@@ -66,15 +66,25 @@ function init_frame_main (main) {
 			item_name = newUI('span', ['list_col', 'name']),
 			item_jump = newUI('span', ['list_col', 'inline_button']),
 			item_unblock = newUI('span', ['list_col', 'inline_button']);
-		item_dom.appendChild(item_id);
 		item_dom.appendChild(item_name);
+		item_dom.appendChild(item_id);
 		item_dom.appendChild(item_jump);
 		item_dom.appendChild(item_unblock);
 		elem.appendChild(item_dom);
 
-		item_id.innerHTML = item;
+		item_id.innerHTML = '(' + item + ')';
 		item_jump.innerHTML = '查看主页';
 		item_unblock.innerHTML = '解除屏蔽';
+
+		item_jump.addEventListener('click', function () {
+			window.location.href = 'http://jianshu.io/users/' + item;
+		});
+		item_unblock.addEventListener('click', function () {
+			chrome.runtime.sendMessage({action: 'remove_from_blacklist', id:[item]}, function (response) {
+				block_controller.setBlockNumber(response.result.length);
+				elem.removeChild(item_dom);
+			});
+		});
 
 		user_name_cacher[item] = function (name) {
 			item_name.innerHTML = name;
@@ -146,6 +156,7 @@ var addCover = function () {
 	};
 
 	showCover = function (opacity) {
+		if (menu_shown) return;
 		cover.style.height = window.innerHeight + 'px';
 		cover.style.background = "-webkit-linear-gradient(top, " +
 									"rgba(200, 200, 200, " + opacity + ") 0%, " +
@@ -155,15 +166,20 @@ var addCover = function () {
 		body.appendChild(cover);
 		setTimeout(function () {
 			cover.style.opacity = 1;
+			menu_shown = true;
 		}, 0);
 	};
 	hideCover = function () {
+		if (!menu_shown) return;
 		cover.style.opacity = '0';
 		setTimeout(function () {
 			!!last_cover && cover.removeChild(last_cover);
 			body.removeChild(cover);
+			menu_shown = false;
 		}, 500);
 	};
+
+	cover.addEventListener('click', hideCover);
 };
 
 var pickupLinks = function (word) {
@@ -262,8 +278,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 		window.location.href = request.url;
 	}
 	else if (request.action === 'show_menu') {
-		menu_shown = !menu_shown;
-		if (menu_shown) {
+		if (!menu_shown) {
 			setCover('main');
 			showCover(0.5);
 		}

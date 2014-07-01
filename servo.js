@@ -51,9 +51,7 @@ function getUserName (user, callback) {
 	xhr.send();
 }
 function getUserNameCache (user, callback) {
-	localStorage.removeItem('__user__' + user);
 	var name = localStorage['__user__' + user];
-	console.log('GUNC', user, name);
 	if (!!name) {
 		callback(name);
 		if (!sessionStorage['__user__' + user]) {
